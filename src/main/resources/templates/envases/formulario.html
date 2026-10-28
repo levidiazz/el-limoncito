@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera(${titulo})}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4" style="max-width: 560px;">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h4 mb-3" th:text="${titulo}"></h1>
+    <form class="panel" th:action="@{${accion}}" th:object="${tipoEnvase}" method="post" novalidate>
+        <div class="mb-3">
+            <label class="form-label" for="nombre">Nombre</label>
+            <input class="form-control" id="nombre" type="text" th:field="*{nombre}"
+                   th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{nombre}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="valorDeposito">Depósito por envase (MXN)</label>
+            <input class="form-control" id="valorDeposito" type="number" step="0.01" min="0.01" th:field="*{valorDeposito}"
+                   th:classappend="${#fields.hasErrors('valorDeposito')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{valorDeposito}"></div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-principal" type="submit">Guardar</button>
+            <a class="btn btn-outline-secondary" th:href="@{/envases}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

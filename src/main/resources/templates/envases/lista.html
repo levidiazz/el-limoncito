@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Envases retornables')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Envases retornables</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" th:href="@{/envases/movimiento}">Registrar movimiento</a>
+            <a class="btn btn-principal" th:href="@{/envases/nuevo}">Nuevo tipo</a>
+        </div>
+    </div>
+    <div class="panel mb-4">
+        <h2 class="h6">Vacíos en bodega por tipo</h2>
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Tipo</th>
+                <th class="text-end">Depósito</th>
+                <th class="text-end">Vacíos en bodega</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${tipos}">
+                <td th:text="${t.nombre}"></td>
+                <td class="text-end" th:text="${#numbers.formatDecimal(t.valorDeposito, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="text-end" th:text="${t.vaciosEnBodega}"></td>
+                <td>
+                    <span th:if="${t.activo}" class="badge text-bg-success">Activo</span>
+                    <span th:unless="${t.activo}" class="badge text-bg-secondary">Inactivo</span>
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/envases/{id}/editar(id=${t.id})}">Modificar</a>
+                    <form class="d-inline" th:if="${t.activo}" th:action="@{/envases/{id}/baja(id=${t.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Dar de baja</button>
+                    </form>
+                    <form class="d-inline" th:unless="${t.activo}" th:action="@{/envases/{id}/reactivar(id=${t.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-success" type="submit">Reactivar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${tipos.isEmpty()}">
+                <td colspan="5" class="text-center text-muted">No hay tipos de envase registrados.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel">
+        <h2 class="h6">Últimos movimientos</h2>
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo de envase</th>
+                <th>Movimiento</th>
+                <th class="text-end">Cantidad</th>
+                <th>Registró</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${movimientos}">
+                <td th:text="${#temporals.format(m.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${m.tipoEnvase.nombre}"></td>
+                <td th:text="${m.tipoLegible}"></td>
+                <td class="text-end" th:text="${m.cantidad}"></td>
+                <td th:text="${m.usuario.nombreCompleto}"></td>
+            </tr>
+            <tr th:if="${movimientos.isEmpty()}">
+                <td colspan="5" class="text-center text-muted">Todavía no hay movimientos.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

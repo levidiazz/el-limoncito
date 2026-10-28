@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Inicio')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h3 mb-1">Bienvenido, <span th:text="${usuario.nombreCompleto}">usuario</span></h1>
+    <p class="text-muted mb-4">Rol: <span th:text="${usuario.rol.nombreLegible}">rol</span></p>
+    <div class="row g-3">
+        <div class="col-md-4" sec:authorize="hasRole('GERENTE_GENERAL')">
+            <a class="tarjeta-modulo" th:href="@{/productos}">
+                <h2 class="h5">Productos y precios</h2>
+                <p>Catálogo con precio de menudeo y mayoreo.</p>
+            </a>
+        </div>
+        <div class="col-md-4" sec:authorize="hasAnyRole('GERENTE_GENERAL','VENTAS','ALMACEN')">
+            <a class="tarjeta-modulo" th:href="@{/existencias}">
+                <h2 class="h5">Existencias</h2>
+                <p>Inventario por producto y lote, con alerta de stock mínimo.</p>
+            </a>
+        </div>
+        <div class="col-md-4" sec:authorize="hasRole('ALMACEN')">
+            <a class="tarjeta-modulo" th:href="@{/entradas}">
+                <h2 class="h5">Entradas de mercancía</h2>
+                <p>Registro de lo que entregan los proveedores.</p>
+            </a>
+        </div>
+        <div class="col-md-4" sec:authorize="hasRole('ALMACEN')">
+            <a class="tarjeta-modulo" th:href="@{/mermas}">
+                <h2 class="h5">Mermas</h2>
+                <p>Producto caducado o dañado, descontado por PEPS.</p>
+            </a>
+        </div>
+        <div class="col-md-4" sec:authorize="hasRole('ALMACEN')">
+            <a class="tarjeta-modulo" th:href="@{/envases}">
+                <h2 class="h5">Envases retornables</h2>
+                <p>Envases vacíos en bodega y entregas al proveedor.</p>
+            </a>
+        </div>
+        <div class="col-md-4" sec:authorize="hasRole('ADMINISTRADOR')">
+            <a class="tarjeta-modulo" th:href="@{/usuarios}">
+                <h2 class="h5">Usuarios y roles</h2>
+                <p>Altas, cambios, bloqueos y bajas de cuentas.</p>
+            </a>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

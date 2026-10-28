@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Movimiento de envases')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h4 mb-3">Movimiento de envases</h1>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <form class="panel h-100" th:action="@{/envases/entrega}" method="post">
+                <h2 class="h6">Entrega de vacíos al proveedor</h2>
+                <div class="mb-3">
+                    <label class="form-label" for="tipoEntrega">Tipo de envase</label>
+                    <select class="form-select" id="tipoEntrega" name="idTipo" required>
+                        <option th:each="t : ${tipos}" th:value="${t.id}"
+                                th:text="${t.nombre + ' (' + t.vaciosEnBodega + ' en bodega)'}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="cantidadEntrega">Cantidad</label>
+                    <input class="form-control" id="cantidadEntrega" name="cantidad" type="number" min="1" required>
+                </div>
+                <button class="btn btn-principal" type="submit">Registrar entrega</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form class="panel h-100" th:action="@{/envases/recepcion}" method="post">
+                <h2 class="h6">Recepción de vacíos de clientes</h2>
+                <div class="mb-3">
+                    <label class="form-label" for="tipoRecepcion">Tipo de envase</label>
+                    <select class="form-select" id="tipoRecepcion" name="idTipo" required>
+                        <option th:each="t : ${tipos}" th:value="${t.id}" th:text="${t.nombre}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="cantidadRecepcion">Cantidad</label>
+                    <input class="form-control" id="cantidadRecepcion" name="cantidad" type="number" min="1" required>
+                </div>
+                <button class="btn btn-principal" type="submit">Registrar recepción</button>
+            </form>
+        </div>
+    </div>
+    <a class="btn btn-link mt-3" th:href="@{/envases}">Volver</a>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
