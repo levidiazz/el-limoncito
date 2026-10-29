@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Proveedores')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Proveedores</h1>
+        <a class="btn btn-principal" th:href="@{/proveedores/nuevo}">Nuevo proveedor</a>
+    </div>
+    <form class="row g-2 mb-3" th:action="@{/proveedores}" method="get">
+        <div class="col-sm-6 col-md-4">
+            <input class="form-control" type="search" name="texto" th:value="${texto}" placeholder="Buscar por nombre">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+        </div>
+    </form>
+    <div class="panel">
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Contacto</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${proveedores}">
+                <td th:text="${p.nombre}"></td>
+                <td th:text="${p.contacto}"></td>
+                <td th:text="${p.telefono}"></td>
+                <td>
+                    <span th:if="${p.activo}" class="badge text-bg-success">Activo</span>
+                    <span th:unless="${p.activo}" class="badge text-bg-secondary">Baja</span>
+                </td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/proveedores/{id}/editar(id=${p.id})}">Modificar</a>
+                    <form class="d-inline" th:if="${p.activo}" th:action="@{/proveedores/{id}/baja(id=${p.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Dar de baja</button>
+                    </form>
+                    <form class="d-inline" th:unless="${p.activo}" th:action="@{/proveedores/{id}/reactivar(id=${p.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-success" type="submit">Reactivar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${proveedores.isEmpty()}">
+                <td colspan="5" class="text-center text-muted">No se encontraron proveedores.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
