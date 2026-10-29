@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Cambiar contraseña')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4" style="max-width: 480px;">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h4 mb-3">Cambiar contraseña</h1>
+    <form class="panel" th:action="@{/cuenta/contrasena}" method="post">
+        <div class="mb-3">
+            <label class="form-label" for="actual">Contraseña actual</label>
+            <input class="form-control" id="actual" name="actual" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="nueva">Nueva contraseña</label>
+            <input class="form-control" id="nueva" name="nueva" type="password" minlength="8" autocomplete="new-password" required>
+            <div class="form-text">Mínimo 8 caracteres.</div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="confirmacion">Confirmar nueva contraseña</label>
+            <input class="form-control" id="confirmacion" name="confirmacion" type="password" autocomplete="new-password" required>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-principal" type="submit">Guardar</button>
+            <a class="btn btn-outline-secondary" th:href="@{/}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
