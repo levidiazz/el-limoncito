@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera(${titulo})}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4" style="max-width: 560px;">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h4 mb-3" th:text="${titulo}"></h1>
+    <form class="panel" th:action="@{${accion}}" th:object="${usuarioFormulario}" method="post" novalidate>
+        <div class="mb-3">
+            <label class="form-label" for="nombreCompleto">Nombre completo</label>
+            <input class="form-control" id="nombreCompleto" type="text" th:field="*{nombreCompleto}"
+                   th:classappend="${#fields.hasErrors('nombreCompleto')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{nombreCompleto}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="usuario">Usuario</label>
+            <input class="form-control" id="usuario" type="text" th:field="*{usuario}" autocomplete="off"
+                   th:classappend="${#fields.hasErrors('usuario')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{usuario}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="idRol">Rol</label>
+            <select class="form-select" id="idRol" th:field="*{idRol}"
+                    th:classappend="${#fields.hasErrors('idRol')} ? 'is-invalid'">
+                <option value="">Selecciona un rol</option>
+                <option th:each="r : ${roles}" th:value="${r.id}" th:text="${r.nombreLegible}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{idRol}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="contrasena">
+                <span th:if="${nuevo}">Contraseña</span>
+                <span th:unless="${nuevo}">Nueva contraseña (dejar vacío para conservar la actual)</span>
+            </label>
+            <input class="form-control" id="contrasena" type="password" name="contrasena" autocomplete="new-password">
+            <div class="form-text">Mínimo 8 caracteres.</div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-principal" type="submit">Guardar</button>
+            <a class="btn btn-outline-secondary" th:href="@{/usuarios}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

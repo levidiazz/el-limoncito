@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Usuarios')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Usuarios y roles</h1>
+        <a class="btn btn-principal" th:href="@{/usuarios/nuevo}">Nuevo usuario</a>
+    </div>
+    <form class="row g-2 mb-3" th:action="@{/usuarios}" method="get">
+        <div class="col-sm-6 col-md-4">
+            <input class="form-control" type="search" name="texto" th:value="${texto}" placeholder="Buscar por nombre">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+        </div>
+    </form>
+    <div class="panel">
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${usuarios}">
+                <td th:text="${u.nombreCompleto}"></td>
+                <td th:text="${u.usuario}"></td>
+                <td th:text="${u.rol.nombreLegible}"></td>
+                <td>
+                    <span th:if="${!u.activo}" class="badge text-bg-secondary">Baja</span>
+                    <span th:if="${u.activo and u.bloqueado}" class="badge text-bg-danger">Bloqueado</span>
+                    <span th:if="${u.activo and !u.bloqueado}" class="badge text-bg-success">Activo</span>
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/usuarios/{id}/editar(id=${u.id})}">Modificar</a>
+                    <form class="d-inline" th:if="${u.bloqueado}" th:action="@{/usuarios/{id}/desbloquear(id=${u.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-warning" type="submit">Desbloquear</button>
+                    </form>
+                    <form class="d-inline" th:if="${u.activo}" th:action="@{/usuarios/{id}/baja(id=${u.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Dar de baja</button>
+                    </form>
+                    <form class="d-inline" th:unless="${u.activo}" th:action="@{/usuarios/{id}/reactivar(id=${u.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-success" type="submit">Reactivar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${usuarios.isEmpty()}">
+                <td colspan="5" class="text-center text-muted">No se encontraron usuarios.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
