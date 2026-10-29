@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Categorías')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Categorías</h1>
+        <a class="btn btn-principal" th:href="@{/categorias/nueva}">Nueva categoría</a>
+    </div>
+    <div class="panel">
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th class="text-end">Productos activos</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${categorias}">
+                <td th:text="${c.categoria.nombre}"></td>
+                <td class="text-end" th:text="${c.productos}"></td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/categorias/{id}/editar(id=${c.categoria.id})}">Modificar</a>
+                    <form class="d-inline" th:action="@{/categorias/{id}/eliminar(id=${c.categoria.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${categorias.isEmpty()}">
+                <td colspan="3" class="text-center text-muted">No hay categorías registradas.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
