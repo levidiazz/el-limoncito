@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Entradas de mercancía')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Entradas de mercancía</h1>
+        <a class="btn btn-principal" th:href="@{/entradas/nueva}">Nueva entrada</a>
+    </div>
+    <form class="row g-2 mb-3" th:action="@{/entradas}" method="get">
+        <div class="col-md-4">
+            <select class="form-select" name="idProveedor">
+                <option value="0">Todos los proveedores</option>
+                <option th:each="p : ${proveedores}" th:value="${p.id}" th:text="${p.nombre}"
+                        th:selected="${p.id == idProveedor}"></option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" type="date" name="desde" th:value="${desde}" aria-label="Desde">
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" type="date" name="hasta" th:value="${hasta}" aria-label="Hasta">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+        </div>
+    </form>
+    <div class="panel">
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Proveedor</th>
+                <th>Fecha</th>
+                <th>Registró</th>
+                <th class="text-end">Total</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${entradas}">
+                <td th:text="${e.folioNota}"></td>
+                <td th:text="${e.proveedor.nombre}"></td>
+                <td th:text="${#temporals.format(e.fechaEntrada, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${e.usuario.nombreCompleto}"></td>
+                <td class="text-end" th:text="${#numbers.formatDecimal(e.total, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/entradas/{id}(id=${e.id})}">Ver detalle</a>
+                </td>
+            </tr>
+            <tr th:if="${entradas.isEmpty()}">
+                <td colspan="6" class="text-center text-muted">No hay entradas en el periodo seleccionado.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

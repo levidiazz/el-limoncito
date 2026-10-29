@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Nueva entrada')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4" style="max-width: 560px;">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h4 mb-3">Nueva entrada de mercancía</h1>
+    <form class="panel" th:action="@{/entradas}" th:object="${entradaFormulario}" method="post" novalidate>
+        <div class="mb-3">
+            <label class="form-label" for="idProveedor">Proveedor</label>
+            <select class="form-select" id="idProveedor" th:field="*{idProveedor}"
+                    th:classappend="${#fields.hasErrors('idProveedor')} ? 'is-invalid'">
+                <option value="">Selecciona un proveedor</option>
+                <option th:each="p : ${proveedores}" th:value="${p.id}" th:text="${p.nombre}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{idProveedor}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="folioNota">Folio de la nota del proveedor</label>
+            <input class="form-control" id="folioNota" type="text" th:field="*{folioNota}"
+                   th:classappend="${#fields.hasErrors('folioNota')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{folioNota}"></div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-principal" type="submit">Continuar</button>
+            <a class="btn btn-outline-secondary" th:href="@{/entradas}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

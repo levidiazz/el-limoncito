@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Corregir lote')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4" style="max-width: 560px;">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h4 mb-3">Corregir producto de la entrada <span th:text="${lote.entrada.folioNota}"></span></h1>
+    <form class="panel" th:action="@{/entradas/lotes/{id}(id=${lote.id})}" th:object="${loteFormulario}" method="post" novalidate>
+        <div class="mb-3">
+            <label class="form-label" for="idProducto">Producto</label>
+            <select class="form-select" id="idProducto" th:field="*{idProducto}">
+                <option th:each="p : ${productos}" th:value="${p.id}" th:text="${p.nombre + ' - ' + p.presentacion}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="cantidad">Cantidad</label>
+            <input class="form-control" id="cantidad" type="number" min="1" th:field="*{cantidad}"
+                   th:classappend="${#fields.hasErrors('cantidad')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{cantidad}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="costoUnitario">Costo unitario (MXN)</label>
+            <input class="form-control" id="costoUnitario" type="number" step="0.01" min="0" th:field="*{costoUnitario}"
+                   th:classappend="${#fields.hasErrors('costoUnitario')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{costoUnitario}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="fechaCaducidad">Caducidad (opcional)</label>
+            <input class="form-control" id="fechaCaducidad" type="date" th:field="*{fechaCaducidad}"
+                   th:classappend="${#fields.hasErrors('fechaCaducidad')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{fechaCaducidad}"></div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-principal" type="submit">Guardar</button>
+            <a class="btn btn-outline-secondary" th:href="@{/entradas/{id}(id=${lote.entrada.id})}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

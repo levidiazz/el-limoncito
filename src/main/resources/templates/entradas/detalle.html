@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Detalle de entrada')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h4 mb-1">Entrada <span th:text="${entrada.folioNota}"></span></h1>
+            <div class="text-muted">
+                <span th:text="${entrada.proveedor.nombre}"></span> ·
+                <span th:text="${#temporals.format(entrada.fechaEntrada, 'dd/MM/yyyy HH:mm')}"></span> ·
+                Total <strong th:text="${#numbers.formatDecimal(entrada.total, 1, 'COMMA', 2, 'POINT')}"></strong>
+            </div>
+        </div>
+        <form th:action="@{/entradas/{id}/cancelar(id=${entrada.id})}" method="post">
+            <button class="btn btn-outline-danger" type="submit">Cancelar entrada</button>
+        </form>
+    </div>
+
+    <form class="panel mb-4" th:action="@{/entradas/{id}/lotes(id=${entrada.id})}" th:object="${loteFormulario}"
+          method="post" novalidate>
+        <h2 class="h6">Agregar producto recibido</h2>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label" for="idProducto">Producto</label>
+                <select class="form-select" id="idProducto" th:field="*{idProducto}"
+                        th:classappend="${#fields.hasErrors('idProducto')} ? 'is-invalid'">
+                    <option value="">Selecciona un producto</option>
+                    <option th:each="p : ${productos}" th:value="${p.id}"
+                            th:text="${p.nombre + ' - ' + p.presentacion}"></option>
+                </select>
+                <div class="invalid-feedback" th:errors="*{idProducto}"></div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label" for="cantidad">Cantidad</label>
+                <input class="form-control" id="cantidad" type="number" min="1" th:field="*{cantidad}"
+                       th:classappend="${#fields.hasErrors('cantidad')} ? 'is-invalid'">
+                <div class="invalid-feedback" th:errors="*{cantidad}"></div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="costoUnitario">Costo unitario (MXN)</label>
+                <input class="form-control" id="costoUnitario" type="number" step="0.01" min="0" th:field="*{costoUnitario}"
+                       th:classappend="${#fields.hasErrors('costoUnitario')} ? 'is-invalid'">
+                <div class="invalid-feedback" th:errors="*{costoUnitario}"></div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="fechaCaducidad">Caducidad (opcional)</label>
+                <input class="form-control" id="fechaCaducidad" type="date" th:field="*{fechaCaducidad}"
+                       th:classappend="${#fields.hasErrors('fechaCaducidad')} ? 'is-invalid'">
+                <div class="invalid-feedback" th:errors="*{fechaCaducidad}"></div>
+            </div>
+        </div>
+        <button class="btn btn-principal mt-3" type="submit">Agregar</button>
+    </form>
+
+    <div class="panel">
+        <h2 class="h6">Productos de la entrada</h2>
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Producto</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-end">Disponible</th>
+                <th class="text-end">Costo</th>
+                <th>Caducidad</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="l : ${lotes}">
+                <td th:text="${l.producto.nombre}"></td>
+                <td class="text-end" th:text="${l.cantidadInicial}"></td>
+                <td class="text-end" th:text="${l.cantidadDisponible}"></td>
+                <td class="text-end" th:text="${#numbers.formatDecimal(l.costoUnitario, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td th:text="${l.fechaCaducidad != null} ? ${#temporals.format(l.fechaCaducidad, 'dd/MM/yyyy')} : 'Sin caducidad'"></td>
+                <td class="text-end text-nowrap">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/entradas/lotes/{id}/editar(id=${l.id})}">Corregir</a>
+                    <form class="d-inline" th:action="@{/entradas/lotes/{id}/quitar(id=${l.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Quitar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${lotes.isEmpty()}">
+                <td colspan="6" class="text-center text-muted">Todavía no se agregan productos.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a class="btn btn-link mt-3" th:href="@{/entradas}">Volver a entradas</a>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
