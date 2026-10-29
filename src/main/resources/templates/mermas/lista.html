@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Mermas')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h4 mb-0">Mermas</h1>
+        <a class="btn btn-principal" th:href="@{/mermas/nueva}">Registrar merma</a>
+    </div>
+    <form class="row g-2 mb-3" th:action="@{/mermas}" method="get">
+        <div class="col-md-3">
+            <select class="form-select" name="motivo">
+                <option value="">Todos los motivos</option>
+                <option th:each="m : ${motivos}" th:value="${m}" th:text="${m}" th:selected="${m == motivo}"></option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" type="date" name="desde" th:value="${desde}" aria-label="Desde">
+        </div>
+        <div class="col-md-3">
+            <input class="form-control" type="date" name="hasta" th:value="${hasta}" aria-label="Hasta">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-secondary" type="submit">Filtrar</button>
+        </div>
+    </form>
+    <div class="panel table-responsive">
+        <table class="table align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Lote</th>
+                <th>Motivo</th>
+                <th class="text-end">Cantidad</th>
+                <th>Registró</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${mermas}">
+                <td th:text="${#temporals.format(m.fechaHora, 'dd/MM/yyyy HH:mm')}"></td>
+                <td th:text="${m.lote.producto.nombre}"></td>
+                <td th:text="${m.lote.entrada.folioNota}"></td>
+                <td th:text="${m.motivo}"></td>
+                <td class="text-end" th:text="${m.cantidad}"></td>
+                <td th:text="${m.usuario.nombreCompleto}"></td>
+                <td class="text-end text-nowrap">
+                    <form class="d-inline-flex gap-1" th:action="@{/mermas/{id}/corregir(id=${m.id})}" method="post">
+                        <input class="form-control form-control-sm" style="width: 80px;" type="number" min="1"
+                               name="cantidad" th:value="${m.cantidad}" aria-label="Nueva cantidad">
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Corregir</button>
+                    </form>
+                    <form class="d-inline" th:action="@{/mermas/{id}/cancelar(id=${m.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Cancelar</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${mermas.isEmpty()}">
+                <td colspan="7" class="text-center text-muted">No hay mermas registradas con esos filtros.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Registrar merma')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container py-4" style="max-width: 560px;">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <h1 class="h4 mb-3">Registrar merma</h1>
+    <form class="panel" th:action="@{/mermas}" th:object="${mermaFormulario}" method="post" novalidate>
+        <div class="mb-3">
+            <label class="form-label" for="idProducto">Producto</label>
+            <select class="form-select" id="idProducto" th:field="*{idProducto}"
+                    th:classappend="${#fields.hasErrors('idProducto')} ? 'is-invalid'">
+                <option value="">Selecciona un producto</option>
+                <option th:each="p : ${productos}" th:value="${p.id}" th:text="${p.nombre + ' - ' + p.presentacion}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{idProducto}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="cantidad">Cantidad</label>
+            <input class="form-control" id="cantidad" type="number" min="1" th:field="*{cantidad}"
+                   th:classappend="${#fields.hasErrors('cantidad')} ? 'is-invalid'">
+            <div class="invalid-feedback" th:errors="*{cantidad}"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="motivo">Motivo</label>
+            <select class="form-select" id="motivo" th:field="*{motivo}"
+                    th:classappend="${#fields.hasErrors('motivo')} ? 'is-invalid'">
+                <option value="">Selecciona el motivo</option>
+                <option th:each="m : ${motivos}" th:value="${m}" th:text="${m}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{motivo}"></div>
+        </div>
+        <p class="text-muted small">Las unidades se descuentan primero del lote más antiguo o próximo a caducar.</p>
+        <div class="d-flex gap-2">
+            <button class="btn btn-principal" type="submit">Registrar</button>
+            <a class="btn btn-outline-secondary" th:href="@{/mermas}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
