@@ -3,63 +3,83 @@
 <head th:replace="~{fragmentos/plantilla :: cabecera('Existencias')}"></head>
 <body>
 <nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
-<main class="container py-4">
+<main class="container">
     <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
-    <h1 class="h4 mb-3">Existencias</h1>
-    <form class="row g-2 mb-3" th:action="@{/existencias}" method="get">
-        <div class="col-sm-6 col-md-4">
-            <input class="form-control" type="search" name="texto" th:value="${texto}" placeholder="Buscar por nombre o código">
+    <div class="encabezado-pagina">
+        <div>
+            <h1 class="h4">Existencias</h1>
+            <p th:text="${existencias.size() + ' productos activos'}">0 productos activos</p>
         </div>
-        <div class="col-sm-4 col-md-3">
-            <select class="form-select" name="idCategoria">
-                <option value="0">Todas las categorías</option>
-                <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"
-                        th:selected="${c.id == idCategoria}"></option>
-            </select>
-        </div>
-        <div class="col-auto">
-            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
-        </div>
+    </div>
+    <form class="barra-herramientas" th:action="@{/existencias}" method="get">
+        <input class="form-control" style="max-width: 22rem" type="search" name="texto" th:value="${texto}"
+               placeholder="Buscar por nombre o código" aria-label="Buscar por nombre o código">
+        <select class="form-select" style="max-width: 16rem" name="idCategoria" aria-label="Categoría">
+            <option value="0">Todas las categorías</option>
+            <option th:each="c : ${categorias}" th:value="${c.id}" th:text="${c.nombre}"
+                    th:selected="${c.id == idCategoria}"></option>
+        </select>
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search me-1"></i>Buscar</button>
     </form>
 
     <div class="alert alert-warning" th:if="${!bajoMinimo.isEmpty()}" sec:authorize="hasRole('GERENTE_GENERAL')">
-        <strong>Productos bajo su stock mínimo:</strong>
+        <strong th:text="${bajoMinimo.size() == 1 ? '1 producto está bajo su stock mínimo' : bajoMinimo.size() + ' productos están bajo su stock mínimo'}">Productos bajo su stock mínimo</strong>
         <ul class="mb-0">
             <li th:each="e : ${bajoMinimo}"
-                th:text="${e.nombre + ' - existencia ' + e.existencia + ' de ' + e.stockMinimo + ' mínimas'}"></li>
+                th:text="${e.nombre + ' (' + e.presentacion + '): ' + e.existencia + ' de ' + e.stockMinimo + ' mínimas'}"></li>
         </ul>
     </div>
 
     <div class="panel table-responsive">
-        <table class="table align-middle mb-0">
+        <table class="table table-hover align-middle">
             <thead>
             <tr>
+                <th class="col-num">#</th>
                 <th>Código</th>
                 <th>Producto</th>
                 <th>Categoría</th>
                 <th class="text-end">Existencia</th>
                 <th class="text-end">Stock mínimo</th>
+                <th>Estado</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="e : ${existencias}" th:classappend="${e.existencia < e.stockMinimo} ? 'fila-alerta'">
-                <td th:text="${e.codigoBarras}"></td>
+            <tr th:each="e, fila : ${existencias}" th:classappend="${e.existencia < e.stockMinimo} ? 'fila-alerta'">
+                <td class="col-num" th:text="${fila.count}"></td>
                 <td>
-                    <span th:text="${e.nombre}"></span>
+                    <a class="enlace-codigo" th:href="@{/existencias/{id}/lotes(id=${e.idProducto})}" th:text="${e.codigoBarras}"></a>
+                </td>
+                <td>
+                    <span class="fw-semibold" th:text="${e.nombre}"></span>
                     <small class="text-muted d-block" th:text="${e.presentacion}"></small>
                 </td>
                 <td th:text="${e.categoria}"></td>
-                <td class="text-end fw-bold" th:text="${e.existencia}"></td>
-                <td class="text-end" th:text="${e.stockMinimo}"></td>
-                <td class="text-end">
+                <td class="text-end fw-bold" th:classappend="${e.existencia < e.stockMinimo} ? 'cifra-alerta'"
+                    th:text="${#numbers.formatInteger(e.existencia, 1, 'COMMA')}"></td>
+                <td class="text-end" th:text="${#numbers.formatInteger(e.stockMinimo, 1, 'COMMA')}"></td>
+                <td>
+                    <span th:if="${e.existencia == 0}" class="badge text-bg-danger">Agotado</span>
+                    <span th:if="${e.existencia > 0 and e.existencia < e.stockMinimo}" class="badge text-bg-warning">Bajo mínimo</span>
+                    <span th:if="${e.existencia >= e.stockMinimo and e.existencia > 0}" class="badge text-bg-success">Suficiente</span>
+                </td>
+                <td class="col-acciones">
                     <a class="btn btn-sm btn-outline-secondary" th:href="@{/existencias/{id}/lotes(id=${e.idProducto})}">Ver lotes</a>
                 </td>
             </tr>
             <tr th:if="${existencias.isEmpty()}">
-                <td colspan="6" class="text-center text-muted">No se encontraron productos.</td>
+                <td colspan="8" class="text-center text-muted py-4">No se encontraron productos.</td>
             </tr>
             </tbody>
+            <tfoot th:if="${!existencias.isEmpty()}">
+            <tr>
+                <td></td>
+                <td colspan="3">Total</td>
+                <td class="text-end" th:text="${#numbers.formatInteger(#aggregates.sum(existencias.![existencia]), 1, 'COMMA')}"></td>
+                <td class="text-end" th:text="${#numbers.formatInteger(#aggregates.sum(existencias.![stockMinimo]), 1, 'COMMA')}"></td>
+                <td colspan="2"></td>
+            </tr>
+            </tfoot>
         </table>
     </div>
 </main>

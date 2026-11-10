@@ -3,48 +3,110 @@
 <head th:replace="~{fragmentos/plantilla :: cabecera('Inicio')}"></head>
 <body>
 <nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
-<main class="container py-4">
+<main class="container">
     <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
-    <h1 class="h3 mb-1">Bienvenido, <span th:text="${usuario.nombreCompleto}">usuario</span></h1>
-    <p class="text-muted mb-4">Rol: <span th:text="${usuario.rol.nombreLegible}">rol</span></p>
-    <div class="row g-3">
-        <div class="col-md-4" sec:authorize="hasRole('GERENTE_GENERAL')">
-            <a class="tarjeta-modulo" th:href="@{/productos}">
-                <h2 class="h5">Productos y precios</h2>
-                <p>Catálogo con precio de menudeo y mayoreo.</p>
-            </a>
-        </div>
-        <div class="col-md-4" sec:authorize="hasAnyRole('GERENTE_GENERAL','VENTAS','ALMACEN')">
-            <a class="tarjeta-modulo" th:href="@{/existencias}">
-                <h2 class="h5">Existencias</h2>
-                <p>Inventario por producto y lote, con alerta de stock mínimo.</p>
-            </a>
-        </div>
-        <div class="col-md-4" sec:authorize="hasRole('ALMACEN')">
-            <a class="tarjeta-modulo" th:href="@{/entradas}">
-                <h2 class="h5">Entradas de mercancía</h2>
-                <p>Registro de lo que entregan los proveedores.</p>
-            </a>
-        </div>
-        <div class="col-md-4" sec:authorize="hasRole('ALMACEN')">
-            <a class="tarjeta-modulo" th:href="@{/mermas}">
-                <h2 class="h5">Mermas</h2>
-                <p>Producto caducado o dañado, descontado por PEPS.</p>
-            </a>
-        </div>
-        <div class="col-md-4" sec:authorize="hasRole('ALMACEN')">
-            <a class="tarjeta-modulo" th:href="@{/envases}">
-                <h2 class="h5">Envases retornables</h2>
-                <p>Envases vacíos en bodega y entregas al proveedor.</p>
-            </a>
-        </div>
-        <div class="col-md-4" sec:authorize="hasRole('ADMINISTRADOR')">
-            <a class="tarjeta-modulo" th:href="@{/usuarios}">
-                <h2 class="h5">Usuarios y roles</h2>
-                <p>Altas, cambios, bloqueos y bajas de cuentas.</p>
-            </a>
+    <div class="encabezado-pagina">
+        <div>
+            <h1 class="h3">Bienvenido, <span th:text="${usuario.nombreCompleto}">usuario</span></h1>
+            <p>Rol: <span th:text="${usuario.rol.nombreLegible}">rol</span></p>
         </div>
     </div>
+    <h2 class="titulo-seccion" sec:authorize="hasAnyRole('VENTAS','GERENTE_GENERAL')">Ventas</h2>
+    <ul class="panel sin-relleno lista-accesos" sec:authorize="hasAnyRole('VENTAS','GERENTE_GENERAL')">
+        <li sec:authorize="hasRole('VENTAS')">
+            <a th:href="@{/ventas/nueva}">
+                <span class="icono"><i class="bi bi-cash-coin"></i></span>
+                <span><strong>Nueva venta</strong><span class="detalle">Arma el carrito, cobra en efectivo y entrega el comprobante.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasAnyRole('VENTAS','GERENTE_GENERAL')">
+            <a th:href="@{/ventas}">
+                <span class="icono"><i class="bi bi-receipt"></i></span>
+                <span><strong>Ventas y comprobantes</strong><span class="detalle">Consulta las ventas realizadas y vuelve a imprimir un comprobante.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasAnyRole('VENTAS','GERENTE_GENERAL')">
+            <a th:href="@{/clientes}">
+                <span class="icono"><i class="bi bi-people"></i></span>
+                <span><strong>Clientes</strong><span class="detalle">Clientes con su perfil de precio: minorista, mayorista o distribuidor.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('VENTAS')">
+            <a th:href="@{/devoluciones}">
+                <span class="icono"><i class="bi bi-arrow-return-left"></i></span>
+                <span><strong>Devolución de envases</strong><span class="detalle">Reintegra el depósito y revisa los envases pendientes por cliente.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+    </ul>
+    <h2 class="titulo-seccion" sec:authorize="hasAnyRole('GERENTE_GENERAL','VENTAS','ALMACEN')">Inventario</h2>
+    <ul class="panel sin-relleno lista-accesos" sec:authorize="hasAnyRole('GERENTE_GENERAL','VENTAS','ALMACEN')">
+        <li sec:authorize="hasAnyRole('GERENTE_GENERAL','VENTAS','ALMACEN')">
+            <a th:href="@{/existencias}">
+                <span class="icono"><i class="bi bi-boxes"></i></span>
+                <span><strong>Existencias</strong><span class="detalle">Inventario por producto y lote, con alerta de stock mínimo.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('ALMACEN')">
+            <a th:href="@{/entradas}">
+                <span class="icono"><i class="bi bi-box-arrow-in-down"></i></span>
+                <span><strong>Entradas de mercancía</strong><span class="detalle">Registro de lo que entregan los proveedores.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('ALMACEN')">
+            <a th:href="@{/mermas}">
+                <span class="icono"><i class="bi bi-trash3"></i></span>
+                <span><strong>Mermas</strong><span class="detalle">Producto caducado o dañado, descontado por PEPS.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('ALMACEN')">
+            <a th:href="@{/envases}">
+                <span class="icono"><i class="bi bi-recycle"></i></span>
+                <span><strong>Envases retornables</strong><span class="detalle">Envases vacíos en bodega y entregas al proveedor.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+    </ul>
+    <h2 class="titulo-seccion" sec:authorize="hasRole('GERENTE_GENERAL')">Catálogo</h2>
+    <ul class="panel sin-relleno lista-accesos" sec:authorize="hasRole('GERENTE_GENERAL')">
+        <li sec:authorize="hasRole('GERENTE_GENERAL')">
+            <a th:href="@{/productos}">
+                <span class="icono"><i class="bi bi-tag"></i></span>
+                <span><strong>Productos y precios</strong><span class="detalle">Catálogo con precio de menudeo y mayoreo.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('GERENTE_GENERAL')">
+            <a th:href="@{/categorias}">
+                <span class="icono"><i class="bi bi-diagram-3"></i></span>
+                <span><strong>Categorías</strong><span class="detalle">Agrupa los productos para encontrarlos más rápido.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+        <li sec:authorize="hasRole('GERENTE_GENERAL')">
+            <a th:href="@{/proveedores}">
+                <span class="icono"><i class="bi bi-truck"></i></span>
+                <span><strong>Proveedores</strong><span class="detalle">Datos de contacto de quien surte la mercancía.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+    </ul>
+    <h2 class="titulo-seccion" sec:authorize="hasRole('ADMINISTRADOR')">Administración</h2>
+    <ul class="panel sin-relleno lista-accesos" sec:authorize="hasRole('ADMINISTRADOR')">
+        <li sec:authorize="hasRole('ADMINISTRADOR')">
+            <a th:href="@{/usuarios}">
+                <span class="icono"><i class="bi bi-person-gear"></i></span>
+                <span><strong>Usuarios y roles</strong><span class="detalle">Altas, cambios, bloqueos y bajas de cuentas.</span></span>
+                <i class="bi bi-chevron-right flecha"></i>
+            </a>
+        </li>
+    </ul>
 </main>
 <th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
 </body>
