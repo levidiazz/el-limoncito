@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Nueva venta')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="encabezado-pagina">
+        <div>
+            <h1 class="h4">Nueva venta</h1>
+            <p>Agrega productos, elige al cliente si lo hay y cobra en efectivo.</p>
+        </div>
+    </div>
+    <div class="caja">
+        <div class="d-grid gap-3">
+            <section class="panel">
+                <h2 class="h6">Agregar producto</h2>
+                <form class="row g-2 align-items-end mb-3" th:action="@{/ventas/carrito/agregar}" method="post">
+                    <div class="col-sm-7">
+                        <label class="form-label" for="codigo">Código de barras</label>
+                        <input class="form-control" id="codigo" name="codigo" type="text" autocomplete="off" autofocus
+                               placeholder="Escanea o escribe el código">
+                    </div>
+                    <div class="col-4 col-sm-2">
+                        <label class="form-label" for="cantidadCodigo">Cantidad</label>
+                        <input class="form-control" id="cantidadCodigo" name="cantidad" type="number" min="1" value="1">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-principal" type="submit">Agregar</button>
+                    </div>
+                </form>
+                <form class="row g-2 align-items-end" th:action="@{/ventas/nueva}" method="get">
+                    <input type="hidden" name="cliente" th:value="${textoCliente}">
+                    <div class="col-sm-9">
+                        <label class="form-label" for="producto">Buscar por nombre</label>
+                        <input class="form-control" id="producto" name="producto" type="search" th:value="${textoProducto}"
+                               placeholder="Ejemplo: cerveza, refresco, arroz">
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search me-1"></i>Buscar</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel table-responsive" th:if="${!textoProducto.isBlank()}">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-end">Existencia</th>
+                        <th class="text-end">Menudeo</th>
+                        <th class="text-end">Mayoreo</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${productos}">
+                        <td>
+                            <span class="fw-semibold" th:text="${r.producto.nombre}"></span>
+                            <small class="text-muted d-block" th:text="${r.producto.presentacion + ' · ' + r.producto.codigoBarras}"></small>
+                        </td>
+                        <td class="text-end" th:classappend="${r.existencia == 0} ? 'cifra-alerta'" th:text="${r.existencia}"></td>
+                        <td class="text-end" th:text="${'$' + #numbers.formatDecimal(r.producto.precioMenudeo, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end">
+                            <span th:text="${'$' + #numbers.formatDecimal(r.producto.precioMayoreo, 1, 'COMMA', 2, 'POINT')}"></span>
+                            <small class="text-muted d-block" th:text="${'desde ' + r.producto.cantidadMinMayoreo}"></small>
+                        </td>
+                        <td class="col-acciones">
+                            <form class="d-flex gap-2 justify-content-end" th:action="@{/ventas/carrito/agregar}" method="post">
+                                <input type="hidden" name="idProducto" th:value="${r.producto.id}">
+                                <input class="form-control form-control-sm" style="width: 4.5rem" name="cantidad" type="number"
+                                       min="1" value="1" aria-label="Cantidad">
+                                <button class="btn btn-sm btn-outline-secondary" type="submit" th:disabled="${r.existencia == 0}">Agregar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${productos.isEmpty()}">
+                        <td colspan="5" class="text-center text-muted py-4">No hay productos que coincidan.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="panel">
+                <h2 class="h6">Cliente</h2>
+                <div th:if="${carrito.cliente != null}" class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <span class="fw-semibold" th:text="${carrito.cliente.nombre}"></span>
+                        <span class="insignia-precio ms-2" th:classappend="${carrito.cliente.precioMayoreo} ? 'mayoreo' : 'menudeo'"
+                              th:text="${carrito.cliente.perfilLegible}"></span>
+                    </div>
+                    <form th:action="@{/ventas/carrito/cliente/quitar}" method="post">
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Quitar cliente</button>
+                    </form>
+                </div>
+                <div th:if="${carrito.cliente == null}">
+                    <form class="row g-2 align-items-end" th:action="@{/ventas/nueva}" method="get">
+                        <input type="hidden" name="producto" th:value="${textoProducto}">
+                        <div class="col-sm-9">
+                            <label class="form-label" for="cliente">Buscar por nombre o teléfono</label>
+                            <input class="form-control" id="cliente" name="cliente" type="search" th:value="${textoCliente}"
+                                   placeholder="Sin cliente: venta de mostrador">
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search me-1"></i>Buscar</button>
+                        </div>
+                    </form>
+                    <ul class="list-unstyled mt-3 mb-0" th:if="${!textoCliente.isBlank()}">
+                        <li th:each="c : ${clientes}" class="d-flex justify-content-between align-items-center py-2 border-top">
+                            <span>
+                                <span class="fw-semibold" th:text="${c.nombre}"></span>
+                                <small class="text-muted ms-2" th:text="${c.telefono}"></small>
+                                <span class="insignia-precio ms-2" th:classappend="${c.precioMayoreo} ? 'mayoreo' : 'menudeo'"
+                                      th:text="${c.perfilLegible}"></span>
+                            </span>
+                            <form th:action="@{/ventas/carrito/cliente}" method="post">
+                                <input type="hidden" name="idCliente" th:value="${c.id}">
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">Elegir</button>
+                            </form>
+                        </li>
+                        <li th:if="${clientes.isEmpty()}" class="text-muted py-2 border-top">No se encontraron clientes activos.</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+
+        <aside class="caja-ticket" aria-label="Venta en curso">
+            <div class="panel">
+                <div class="ticket-cabecera">
+                    <div class="cliente-nombre" th:text="${carrito.cliente != null ? carrito.cliente.nombre : 'Venta de mostrador'}"></div>
+                    <small th:text="${carrito.vacio() ? 'Sin productos' : carrito.unidades() + (carrito.unidades() == 1 ? ' unidad' : ' unidades')}"></small>
+                </div>
+
+                <div class="ticket-vacio" th:if="${carrito.vacio()}">El carrito está vacío.</div>
+
+                <div class="ticket-lineas" th:if="${!carrito.vacio()}">
+                    <div class="ticket-linea" th:each="l : ${carrito.lineas}">
+                        <div>
+                            <div class="nombre" th:text="${l.producto.nombre}"></div>
+                            <div class="detalle">
+                                <span th:text="${l.cantidad + ' × $' + #numbers.formatDecimal(l.precio, 1, 'COMMA', 2, 'POINT')}"></span>
+                                <span class="insignia-precio ms-1" th:classappend="${l.esMayoreo()} ? 'mayoreo' : 'menudeo'"
+                                      th:text="${l.esMayoreo() ? 'Mayoreo' : 'Menudeo'}"></span>
+                            </div>
+                            <div class="detalle" th:if="${l.deposito.signum() > 0}"
+                                 th:text="${'Depósito de envase $' + #numbers.formatDecimal(l.deposito, 1, 'COMMA', 2, 'POINT')}"></div>
+                        </div>
+                        <div class="importe" th:text="${'$' + #numbers.formatDecimal(l.importe, 1, 'COMMA', 2, 'POINT')}"></div>
+                        <div class="controles">
+                            <form class="d-flex gap-2" th:action="@{/ventas/carrito/cantidad}" method="post">
+                                <input type="hidden" name="idProducto" th:value="${l.producto.id}">
+                                <input class="form-control form-control-sm" name="cantidad" type="number" min="0"
+                                       th:value="${l.cantidad}" aria-label="Cantidad">
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">Cambiar</button>
+                            </form>
+                            <form th:action="@{/ventas/carrito/quitar}" method="post">
+                                <input type="hidden" name="idProducto" th:value="${l.producto.id}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Quitar del carrito">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ticket-totales">
+                    <div class="fila"><span>Subtotal</span><span th:text="${'$' + #numbers.formatDecimal(carrito.subtotal, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                    <div class="fila"><span>IVA</span><span th:text="${'$' + #numbers.formatDecimal(carrito.iva, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                    <div class="fila" th:if="${carrito.deposito.signum() > 0}">
+                        <span>Depósito de envases</span>
+                        <span th:text="${'$' + #numbers.formatDecimal(carrito.deposito, 1, 'COMMA', 2, 'POINT')}"></span>
+                    </div>
+                    <div class="fila total">
+                        <span>Total</span>
+                        <span class="cifra" th:text="${'$' + #numbers.formatDecimal(carrito.total, 1, 'COMMA', 2, 'POINT')}"></span>
+                    </div>
+                </div>
+
+                <div class="ticket-cobro" th:if="${!carrito.vacio()}">
+                    <div class="alert alert-warning" th:if="${carrito.requiereCliente()}">
+                        La venta incluye envases retornables. Elige un cliente para registrar su depósito.
+                    </div>
+                    <form th:action="@{/ventas/cobrar}" method="post">
+                        <label class="form-label" for="efectivoRecibido">Efectivo recibido</label>
+                        <input class="form-control mb-2" id="efectivoRecibido" name="efectivoRecibido" type="number"
+                               step="0.01" min="0" inputmode="decimal" required th:attr="data-total=${carrito.total}">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Cambio</span>
+                            <strong id="cambio">$0.00</strong>
+                        </div>
+                        <button class="btn btn-principal w-100" type="submit" th:disabled="${carrito.requiereCliente()}">
+                            <i class="bi bi-cash-coin me-1"></i>Cobrar
+                        </button>
+                    </form>
+                    <form class="mt-2" th:action="@{/ventas/carrito/vaciar}" method="post"
+                          data-confirmar="¿Vaciar el carrito?">
+                        <button class="btn btn-link w-100" type="submit">Vaciar carrito</button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
