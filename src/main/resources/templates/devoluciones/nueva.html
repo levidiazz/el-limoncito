@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Registrar devolución')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container" style="max-width: 52rem;">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="encabezado-pagina">
+        <h1 class="h4">Registrar devolución de envases</h1>
+    </div>
+    <div class="panel mb-4">
+        <h2 class="h6">1. Cliente con envases pendientes</h2>
+        <form class="row g-2 align-items-end" th:action="@{/devoluciones/nueva}" method="get">
+            <div class="col-sm-8">
+                <label class="form-label" for="idCliente">Cliente</label>
+                <select class="form-select" id="idCliente" name="idCliente" required>
+                    <option value="">Selecciona un cliente</option>
+                    <option th:each="c : ${clientes}" th:value="${c.cliente.id}"
+                            th:text="${c.cliente.nombre + ' — ' + c.totalPendientes() + ' envases pendientes'}"
+                            th:selected="${clienteElegido != null and clienteElegido.id == c.cliente.id}"></option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-outline-secondary" type="submit">Continuar</button>
+            </div>
+        </form>
+        <p class="text-muted mt-3 mb-0" th:if="${clientes.isEmpty()}">Ningún cliente tiene envases pendientes de devolver.</p>
+    </div>
+    <form class="panel" th:if="${clienteElegido != null}" th:action="@{/devoluciones}" th:object="${devolucionFormulario}"
+          method="post" novalidate>
+        <h2 class="h6">2. Envases que regresa <span class="fw-normal text-muted" th:text="${clienteElegido.nombre}"></span></h2>
+        <input type="hidden" th:field="*{idCliente}">
+        <div class="mb-3">
+            <label class="form-label" for="idTipoEnvase">Tipo de envase</label>
+            <select class="form-select" id="idTipoEnvase" th:field="*{idTipoEnvase}"
+                    th:classappend="${#fields.hasErrors('idTipoEnvase')} ? 'is-invalid'">
+                <option value="">Selecciona el tipo</option>
+                <option th:each="p : ${pendientes}" th:value="${p.tipoEnvase.id}"
+                        th:text="${p.tipoEnvase.nombre + ' — ' + p.pendientes() + ' pendientes, depósito $' + #numbers.formatDecimal(p.tipoEnvase.valorDeposito, 1, 'COMMA', 2, 'POINT') + ' c/u'}"></option>
+            </select>
+            <div class="invalid-feedback" th:errors="*{idTipoEnvase}"></div>
+        </div>
+        <div class="mb-4">
+            <label class="form-label" for="cantidad">Cantidad de envases</label>
+            <input class="form-control" id="cantidad" type="number" min="1" th:field="*{cantidad}"
+                   th:classappend="${#fields.hasErrors('cantidad')} ? 'is-invalid'" style="max-width: 12rem;">
+            <div class="invalid-feedback" th:errors="*{cantidad}"></div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-principal" type="submit">Registrar y reintegrar depósito</button>
+            <a class="btn btn-outline-secondary" th:href="@{/devoluciones}">Cancelar</a>
+        </div>
+    </form>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

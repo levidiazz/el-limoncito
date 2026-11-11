@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Envases pendientes')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="encabezado-pagina">
+        <div>
+            <h1 class="h4">Envases pendientes por cliente</h1>
+            <p>Envases cuyo depósito ya se cobró y que el cliente todavía no regresa.</p>
+        </div>
+        <div class="acciones">
+            <a class="btn btn-outline-secondary" th:href="@{/devoluciones}">Volver a devoluciones</a>
+        </div>
+    </div>
+    <div class="panel table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+                <th class="col-num">#</th>
+                <th>Cliente</th>
+                <th>Tipo de envase</th>
+                <th class="text-end">Cobrados</th>
+                <th class="text-end">Devueltos</th>
+                <th class="text-end">Pendientes</th>
+                <th class="text-end">Depósito pendiente</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody th:each="c, fila : ${clientes}">
+            <tr th:each="e, interno : ${c.envases}">
+                <td class="col-num" th:text="${interno.first} ? ${fila.count} : ''"></td>
+                <td class="fw-semibold" th:text="${interno.first} ? ${c.cliente.nombre} : ''"></td>
+                <td th:text="${e.tipoEnvase.nombre}"></td>
+                <td class="text-end" th:text="${e.cobrados}"></td>
+                <td class="text-end" th:text="${e.devueltos}"></td>
+                <td class="text-end cifra-alerta" th:text="${e.pendientes()}"></td>
+                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(e.depositoPendiente(), 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="col-acciones">
+                    <a th:if="${interno.first}" class="btn btn-sm btn-outline-secondary"
+                       th:href="@{/devoluciones/nueva(idCliente=${c.cliente.id})}">Registrar devolución</a>
+                </td>
+            </tr>
+            </tbody>
+            <tbody th:if="${clientes.isEmpty()}">
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">Ningún cliente tiene envases pendientes.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
