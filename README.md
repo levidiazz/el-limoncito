@@ -49,3 +49,13 @@ Contraseña de todos: `Limoncito2026` (cambiarla en "Cambiar contraseña").
 | Proveedores y entradas de mercancía | HU-6.1 a HU-6.4, HU-8.1 a HU-8.4 | Moisés Pascual |
 | Existencias | HU-11.1 a HU-11.4 | Irvin Montero |
 | Mermas | HU-9.1 a HU-9.4 | Ingrid Arcadio |
+
+## Datos históricos de prueba
+
+Para probar el modelo de predicción se pueden cargar ocho productos, tres clientes y 200 días de ventas simuladas arrancando con el perfil `demo`:
+
+```
+mvn spring-boot:run -Dspring-boot.run.profiles=demo
+```
+
+El script de selección del modelo está en la carpeta `ia` (ver `ia/LEEME.md`).
