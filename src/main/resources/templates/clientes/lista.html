@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Clientes')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="encabezado-pagina">
+        <div>
+            <h1 class="h4">Clientes</h1>
+            <p th:text="${clientes.size() == 1 ? '1 cliente' : clientes.size() + ' clientes'}">0 clientes</p>
+        </div>
+        <div class="acciones">
+            <a class="btn btn-principal" th:href="@{/clientes/nuevo}"><i class="bi bi-plus-lg me-1"></i>Nuevo cliente</a>
+        </div>
+    </div>
+    <form class="barra-herramientas" th:action="@{/clientes}" method="get">
+        <input class="form-control" style="max-width: 22rem" type="search" name="texto" th:value="${texto}"
+               placeholder="Buscar por nombre o teléfono" aria-label="Buscar por nombre o teléfono">
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search me-1"></i>Buscar</button>
+    </form>
+    <div class="panel table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+                <th class="col-num">#</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Perfil de precio</th>
+                <th>Estado</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c, fila : ${clientes}">
+                <td class="col-num" th:text="${fila.count}"></td>
+                <td class="fw-semibold" th:text="${c.nombre}"></td>
+                <td th:text="${c.telefono != null ? c.telefono : '—'}"></td>
+                <td>
+                    <span class="insignia-precio" th:classappend="${c.precioMayoreo} ? 'mayoreo' : 'menudeo'"
+                          th:text="${c.perfilLegible}"></span>
+                </td>
+                <td>
+                    <span th:if="${c.activo}" class="badge text-bg-success">Activo</span>
+                    <span th:unless="${c.activo}" class="badge text-bg-secondary">Baja</span>
+                </td>
+                <td class="col-acciones" sec:authorize="hasRole('GERENTE_GENERAL')">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/clientes/{id}/editar(id=${c.id})}">Modificar</a>
+                    <form class="d-inline" th:if="${c.activo}" th:action="@{/clientes/{id}/baja(id=${c.id})}" method="post"
+                          data-confirmar="¿Dar de baja a este cliente? Sus ventas anteriores se conservan.">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Dar de baja</button>
+                    </form>
+                    <form class="d-inline" th:unless="${c.activo}" th:action="@{/clientes/{id}/reactivar(id=${c.id})}" method="post">
+                        <button class="btn btn-sm btn-outline-success" type="submit">Reactivar</button>
+                    </form>
+                </td>
+                <td sec:authorize="!hasRole('GERENTE_GENERAL')"></td>
+            </tr>
+            <tr th:if="${clientes.isEmpty()}">
+                <td colspan="6" class="text-center text-muted py-4">No se encontraron clientes.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

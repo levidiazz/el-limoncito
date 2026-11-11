@@ -20,6 +20,11 @@ public class SeguridadConfig {
                         .requestMatchers("/categorias/**", "/productos/**", "/proveedores/**").hasRole("GERENTE_GENERAL")
                         .requestMatchers("/entradas/**", "/mermas/**", "/envases/**").hasRole("ALMACEN")
                         .requestMatchers("/existencias/**").hasAnyRole("GERENTE_GENERAL", "VENTAS", "ALMACEN")
+                        .requestMatchers("/clientes", "/clientes/nuevo").hasAnyRole("GERENTE_GENERAL", "VENTAS")
+                        .requestMatchers("/clientes/**").hasRole("GERENTE_GENERAL")
+                        .requestMatchers("/ventas/nueva", "/ventas/carrito/**", "/ventas/cobrar").hasRole("VENTAS")
+                        .requestMatchers("/ventas", "/ventas/**").hasAnyRole("GERENTE_GENERAL", "VENTAS")
+                        .requestMatchers("/devoluciones/**").hasRole("VENTAS")
                         .anyRequest().authenticated())
                 .formLogin(formulario -> formulario
                         .loginPage("/login")
