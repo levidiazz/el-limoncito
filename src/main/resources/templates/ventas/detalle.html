@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Detalle de venta')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="encabezado-pagina">
+        <div>
+            <h1 class="h4" th:text="${'Venta ' + venta.id}">Venta</h1>
+            <p th:text="${#temporals.format(venta.fechaHora, 'dd/MM/yyyy HH:mm') + ' · ' + (venta.cliente != null ? venta.cliente.nombre : 'Mostrador') + ' · Atendió ' + venta.usuario.nombreCompleto}"></p>
+        </div>
+        <div class="acciones">
+            <a class="btn btn-outline-secondary" th:href="@{/ventas}">Volver a ventas</a>
+            <a class="btn btn-principal" th:href="@{/ventas/{id}/comprobante(id=${venta.id})}"><i class="bi bi-printer me-1"></i>Ver comprobante</a>
+            <a class="btn btn-limon" th:href="@{/ventas/nueva}" sec:authorize="hasRole('VENTAS')">Nueva venta</a>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="panel table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                    <tr>
+                        <th class="col-num">#</th>
+                        <th>Producto</th>
+                        <th class="text-end">Cantidad</th>
+                        <th>Precio</th>
+                        <th class="text-end">Precio unitario</th>
+                        <th class="text-end">Importe</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d, fila : ${detalles}">
+                        <td class="col-num" th:text="${fila.count}"></td>
+                        <td>
+                            <span class="fw-semibold" th:text="${d.producto.nombre}"></span>
+                            <small class="text-muted d-block" th:text="${d.producto.presentacion}"></small>
+                        </td>
+                        <td class="text-end" th:text="${d.cantidad}"></td>
+                        <td>
+                            <span class="insignia-precio" th:classappend="${d.tipoPrecio == 'MAYOREO'} ? 'mayoreo' : 'menudeo'"
+                                  th:text="${d.tipoPrecio == 'MAYOREO' ? 'Mayoreo' : 'Menudeo'}"></span>
+                        </td>
+                        <td class="text-end" th:text="${'$' + #numbers.formatDecimal(d.precioAplicado, 1, 'COMMA', 2, 'POINT')}"></td>
+                        <td class="text-end" th:text="${'$' + #numbers.formatDecimal(d.importe, 1, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="panel ticket-totales">
+                <div class="fila"><span>Subtotal</span><span th:text="${'$' + #numbers.formatDecimal(venta.subtotal, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                <div class="fila"><span>IVA</span><span th:text="${'$' + #numbers.formatDecimal(venta.iva, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                <div class="fila" th:if="${venta.depositoEnvases.signum() > 0}">
+                    <span>Depósito de envases</span>
+                    <span th:text="${'$' + #numbers.formatDecimal(venta.depositoEnvases, 1, 'COMMA', 2, 'POINT')}"></span>
+                </div>
+                <div class="fila total">
+                    <span>Total</span>
+                    <span class="cifra" th:text="${'$' + #numbers.formatDecimal(venta.total, 1, 'COMMA', 2, 'POINT')}"></span>
+                </div>
+                <div class="fila mt-3"><span>Efectivo recibido</span><span th:text="${'$' + #numbers.formatDecimal(venta.efectivoRecibido, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                <div class="fila"><span>Cambio</span><strong th:text="${'$' + #numbers.formatDecimal(venta.cambio, 1, 'COMMA', 2, 'POINT')}"></strong></div>
+            </div>
+        </div>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>

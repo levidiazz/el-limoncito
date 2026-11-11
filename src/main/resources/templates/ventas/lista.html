@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Ventas')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="encabezado-pagina">
+        <div>
+            <h1 class="h4">Ventas y comprobantes</h1>
+            <p>Las últimas 50 ventas registradas.</p>
+        </div>
+        <div class="acciones" sec:authorize="hasRole('VENTAS')">
+            <a class="btn btn-principal" th:href="@{/ventas/nueva}"><i class="bi bi-plus-lg me-1"></i>Nueva venta</a>
+        </div>
+    </div>
+    <div class="panel table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+            <tr>
+                <th class="col-num">#</th>
+                <th>Fecha y hora</th>
+                <th>Cliente</th>
+                <th>Atendió</th>
+                <th class="text-end">Subtotal</th>
+                <th class="text-end">IVA</th>
+                <th class="text-end">Depósito</th>
+                <th class="text-end">Total</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v, fila : ${ventas}">
+                <td class="col-num" th:text="${fila.count}"></td>
+                <td>
+                    <a class="enlace-codigo" th:href="@{/ventas/{id}(id=${v.id})}"
+                       th:text="${#temporals.format(v.fechaHora, 'dd/MM/yyyy HH:mm')}"></a>
+                </td>
+                <td th:text="${v.cliente != null ? v.cliente.nombre : 'Mostrador'}"></td>
+                <td th:text="${v.usuario.nombreCompleto}"></td>
+                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(v.subtotal, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(v.iva, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="text-end" th:text="${'$' + #numbers.formatDecimal(v.depositoEnvases, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="text-end fw-bold" th:text="${'$' + #numbers.formatDecimal(v.total, 1, 'COMMA', 2, 'POINT')}"></td>
+                <td class="col-acciones">
+                    <a class="btn btn-sm btn-outline-secondary" th:href="@{/ventas/{id}(id=${v.id})}">Ver detalle</a>
+                </td>
+            </tr>
+            <tr th:if="${ventas.isEmpty()}">
+                <td colspan="9" class="text-center text-muted py-4">Todavía no hay ventas registradas.</td>
+            </tr>
+            </tbody>
+            <tfoot th:if="${!ventas.isEmpty()}">
+            <tr>
+                <td></td>
+                <td colspan="6">Total de las ventas mostradas</td>
+                <td class="text-end" colspan="2"
+                    th:text="${'$' + #numbers.formatDecimal(#aggregates.sum(ventas.![total]), 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
