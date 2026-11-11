@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragmentos/plantilla :: cabecera('Comprobante de venta')}"></head>
+<body>
+<nav th:replace="~{fragmentos/plantilla :: menu}"></nav>
+<main class="container">
+    <div th:replace="~{fragmentos/plantilla :: mensajes}"></div>
+    <div class="encabezado-pagina no-imprimir">
+        <h1 class="h4" th:text="${'Comprobante ' + vista.comprobante.folio}">Comprobante</h1>
+        <div class="acciones">
+            <a class="btn btn-outline-secondary" th:href="@{/ventas/{id}(id=${vista.venta.id})}">Volver a la venta</a>
+            <button class="btn btn-principal" type="button" data-imprimir><i class="bi bi-printer me-1"></i>Imprimir</button>
+        </div>
+    </div>
+    <article class="comprobante">
+        <header>
+            <span class="marca">
+                <svg viewBox="0 0 32 32" aria-hidden="true">
+                    <ellipse cx="16" cy="18" rx="12" ry="9" transform="rotate(-28 16 18)" fill="#e9dc4a"/>
+                    <path d="M9 17c1.5-3.5 5-5.5 9-5.5" fill="none" stroke="#faf6cf" stroke-width="1.6" stroke-linecap="round"/>
+                    <path d="M21 8c1.8-3 5-3.8 8-3.2-.4 3.2-3.4 5.6-8 3.2z" fill="#7fc15a"/>
+                </svg>
+                <span>El Limoncito</span>
+            </span>
+            <div class="text-muted mt-2">Comprobante de venta</div>
+            <div class="fw-bold fs-5 mt-1" th:text="${vista.comprobante.folio}"></div>
+        </header>
+        <div class="linea"><span class="text-muted">Fecha</span><span th:text="${#temporals.format(vista.comprobante.fechaEmision, 'dd/MM/yyyy HH:mm')}"></span></div>
+        <div class="linea"><span class="text-muted">Cliente</span><span th:text="${vista.venta.cliente != null ? vista.venta.cliente.nombre : 'Mostrador'}"></span></div>
+        <div class="linea"><span class="text-muted">Atendió</span><span th:text="${vista.venta.usuario.nombreCompleto}"></span></div>
+        <div class="separador"></div>
+        <div th:each="d : ${vista.detalles}" class="mb-2">
+            <div class="linea">
+                <span class="fw-semibold" th:text="${d.producto.nombre}"></span>
+                <span th:text="${'$' + #numbers.formatDecimal(d.importe, 1, 'COMMA', 2, 'POINT')}"></span>
+            </div>
+            <small class="text-muted"
+                   th:text="${d.cantidad + ' × $' + #numbers.formatDecimal(d.precioAplicado, 1, 'COMMA', 2, 'POINT') + ' · ' + d.producto.presentacion + ' · ' + (d.tipoPrecio == 'MAYOREO' ? 'Mayoreo' : 'Menudeo')}"></small>
+        </div>
+        <div class="separador"></div>
+        <div class="linea"><span>Subtotal</span><span th:text="${'$' + #numbers.formatDecimal(vista.venta.subtotal, 1, 'COMMA', 2, 'POINT')}"></span></div>
+        <div class="linea"><span>IVA</span><span th:text="${'$' + #numbers.formatDecimal(vista.venta.iva, 1, 'COMMA', 2, 'POINT')}"></span></div>
+        <div class="linea" th:if="${vista.venta.depositoEnvases.signum() > 0}">
+            <span>Depósito de envases</span>
+            <span th:text="${'$' + #numbers.formatDecimal(vista.venta.depositoEnvases, 1, 'COMMA', 2, 'POINT')}"></span>
+        </div>
+        <div class="linea total"><span>Total</span><span th:text="${'$' + #numbers.formatDecimal(vista.venta.total, 1, 'COMMA', 2, 'POINT')}"></span></div>
+        <div class="separador"></div>
+        <div class="linea"><span>Efectivo recibido</span><span th:text="${'$' + #numbers.formatDecimal(vista.venta.efectivoRecibido, 1, 'COMMA', 2, 'POINT')}"></span></div>
+        <div class="linea"><span>Cambio</span><span th:text="${'$' + #numbers.formatDecimal(vista.venta.cambio, 1, 'COMMA', 2, 'POINT')}"></span></div>
+        <div class="separador" th:if="${vista.venta.depositoEnvases.signum() > 0}"></div>
+        <p class="text-muted mb-0 small" th:if="${vista.venta.depositoEnvases.signum() > 0}">
+            El depósito de envases se reintegra al devolver los envases vacíos.
+        </p>
+        <div class="separador"></div>
+        <p class="text-center text-muted mb-0 small">Gracias por su compra. Este comprobante no es una factura.</p>
+    </article>
+</main>
+<th:block th:replace="~{fragmentos/plantilla :: scripts}"></th:block>
+</body>
+</html>
